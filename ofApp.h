@@ -4,6 +4,7 @@
 #include "ofxFlyCap2.h"
 #include "ofxGui.h"
 #include "ofxSpout.h"
+#include "ofxBezierWarpManager.h"
 
 static const int CAMERA_W = 1280; 
 static const int CAMERA_H = 720;
@@ -52,4 +53,9 @@ private:
 
 	// spout
 	ofxSpout::Sender sender;
+
+	// mapper
+	ofxBezierWarpManager bezManager;
+	ofFbo camera_fbo;
+	ofFbo spout_fbo;
 };

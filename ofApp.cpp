@@ -27,6 +27,13 @@ void ofApp::setup(){
 
 	// spout settings
 	sender.init("shadow");
+	spout_fbo.allocate(CAMERA_W, CAMERA_H);
+
+	// init mapper
+	camera_fbo.allocate(CAMERA_W, CAMERA_H);
+	bezManager.setup(10); //WarpResolution
+	bezManager.addFbo(&camera_fbo);
+	bezManager.loadSettings();
 }
 
 //--------------------------------------------------------------
@@ -59,6 +66,19 @@ void ofApp::update(){
 	destImage.setFromPixels(dest_img.data, CAMERA_W, CAMERA_H, OF_IMAGE_COLOR);
 	destImage.update();
 
+	// update mapper fbo
+	camera_fbo.begin();
+	ofBackground(0);
+	diffImage.draw(0, 0, CAMERA_W, CAMERA_H);
+	camera_fbo.end();
+
+	// update spout fbo
+	spout_fbo.begin();
+	ofBackground(0); 
+	bezManager.draw();
+	spout_fbo.end();
+
+
 	sender.send(destImage.getTexture());
 }
 
@@ -72,6 +92,10 @@ void ofApp::draw(){
 	destImage.draw(0, CAMERA_H / 2, CAMERA_W / 2, CAMERA_H / 2);
 	bgImage.draw(CAMERA_W / 2, 0, CAMERA_W / 2, CAMERA_H / 2);
 
+	spout_fbo.draw(CAMERA_W / 2, CAMERA_H / 2, CAMERA_W / 2, CAMERA_H / 2);
+
+	bezManager.draw();
+
 	ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()), 10, 15);
 }
 
@@ -83,6 +107,8 @@ void ofApp::exit() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+
+	bezManager.keyPressed(key);
 
 	switch (key)
 	{
@@ -96,6 +122,14 @@ void ofApp::keyPressed(int key){
 
 	case 'g':
 		showGui = !showGui;
+		break;
+
+	case 's':
+		bezManager.saveSettings();
+		break;
+
+	case OF_KEY_RETURN:
+		bezManager.toggleGuideVisible();
 		break;
 
 	default:
@@ -116,11 +150,13 @@ void ofApp::mouseMoved(int x, int y ){
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
 
+	bezManager.mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 
+	bezManager.mousePressed(x, y, button);
 }
 
 //--------------------------------------------------------------
